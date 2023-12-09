@@ -19,7 +19,6 @@ typedef struct br_texture
 
 br_texture_manager *create_br_texture_manager(void);
 
-// texture slot 1 is reserved for shadowmap, dont set index 1!!! range:[0-31]
 br_texture *create_br_texture(br_texture_manager *manager, const char *path, GLenum texType, GLenum pixelType,
 							  GLint min_filter, GLint mag_filter, int index);
 

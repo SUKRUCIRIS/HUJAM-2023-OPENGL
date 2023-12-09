@@ -38,6 +38,8 @@ void rotate_br_object(br_object *obj, float angle, vec3 axis, unsigned char effe
 
 void translate_br_object(br_object *obj, vec3 v, unsigned char effect_physic);
 
+void modify_br_object(br_object *obj, unsigned int index, float value);
+
 // after deleting or creating new objects use this before rendering
 void prepare_render_br_object_manager(br_object_manager *manager);
 

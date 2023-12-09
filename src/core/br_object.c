@@ -176,6 +176,13 @@ void translate_br_object(br_object *obj, vec3 v, unsigned char effect_physic)
 	apply_model_matrix(obj);
 }
 
+void modify_br_object(br_object *obj, unsigned int index, float value)
+{
+	GLfloat *vertices = get_data_DA(obj->manager->vertices);
+	vertices[obj->vertex_start * 9 + index] = value;
+	obj->manager->subdata = 1;
+}
+
 void use_br_object_manager(br_object_manager *manager)
 {
 	if (get_size_DA(manager->objects) > 0)
