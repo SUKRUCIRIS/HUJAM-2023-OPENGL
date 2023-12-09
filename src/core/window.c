@@ -48,7 +48,7 @@ GLFWwindow *create_window(int width, int height, unsigned char is_full, unsigned
 	}
 	gladLoadGL();
 	glViewport(0, 0, width, height);
-	glClearColor(0.5294f, 0.8078f, 0.9216f, 1.0f);
+	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glClearDepth(1.0);

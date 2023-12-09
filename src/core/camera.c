@@ -21,7 +21,10 @@ camera *create_camera(int width, int height, vec3 position, float FOVdeg, float 
 	cam->FOVdeg = FOVdeg;
 	cam->nearPlane = nearPlane;
 	cam->farPlane = farPlane;
-	glm_vec3_rotate(cam->orientation, glm_rad(angle), angle_axis);
+	if (angle != 0)
+	{
+		glm_vec3_rotate(cam->orientation, glm_rad(angle), angle_axis);
+	}
 	glm_mat4_identity(cam->view);
 	glm_mat4_identity(cam->projection);
 	cam->programs = create_DA(sizeof(GLuint));
@@ -127,18 +130,18 @@ void run_input_free_camera(camera *cam, GLFWwindow *window)
 
 void calculate_camera(camera *cam, float near_plane, float far_plane, unsigned char ortho)
 {
-	vec3 sum;
-	glm_vec3_add(cam->position, cam->orientation, sum);
-	glm_lookat(cam->position, sum, cam->up, cam->view);
 	if (ortho == 0)
 	{
+		vec3 sum;
+		glm_vec3_add(cam->position, cam->orientation, sum);
+		glm_lookat(cam->position, sum, cam->up, cam->view);
 		glm_perspective(glm_rad(cam->FOVdeg), (float)cam->width / cam->height, near_plane, far_plane, cam->projection);
+		glm_mat4_mul(cam->projection, cam->view, cam->result);
 	}
 	else
 	{
-		glm_ortho(0, (float)cam->width, (float)cam->height, 0, near_plane, far_plane, cam->projection);
+		glm_ortho(0, (float)cam->width, (float)cam->height, 0, near_plane, far_plane, cam->result);
 	}
-	glm_mat4_mul(cam->projection, cam->view, cam->result);
 }
 
 void use_camera(camera *cam, GLuint program, unsigned char ortho)

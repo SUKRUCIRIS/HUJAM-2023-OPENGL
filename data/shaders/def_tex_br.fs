@@ -7,7 +7,7 @@ uniform sampler2D textures[32];
 
 void main(){
 	FragColor = texture(textures[texture_id], texCoord);
-	if(FragColor.a<1.0){
+	if(FragColor.a<0.5){
 		discard;
 	}
 }

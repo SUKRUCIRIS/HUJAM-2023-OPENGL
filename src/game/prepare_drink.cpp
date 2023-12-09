@@ -15,7 +15,8 @@ void prepare_drink_scene(GLFWwindow *window)
 
 	br_object_manager *obj_manager = create_br_object_manager();
 	br_texture_manager *text_manager = create_br_texture_manager();
-	camera *cam = create_camera(1920, 1080, (0, 0, 0), 60, 0.1f, 100, 1, 100, 0, (0, 0, 0));
+	vec3 cam_position = {0, 0, 0};
+	camera *cam = create_camera(1920, 1080, cam_position, 60, -100, 100, 1, 100, 0, cam_position);
 
 	// create textures
 	{
@@ -53,6 +54,7 @@ void prepare_drink_scene(GLFWwindow *window)
 	}
 	clock_t timer = 0;
 	clock_t frame_ms = 0;
+	prepare_render_br_object_manager(obj_manager);
 	while (1)
 	{
 		timer = clock();
@@ -68,7 +70,7 @@ void prepare_drink_scene(GLFWwindow *window)
 		{
 			break;
 		}
-		frame_ms = (clock() - timer) / (CLOCKS_PER_SEC / 1000);
+		frame_ms = (clock() - timer) / CLOCKS_PER_SEC;
 		world.Step(__min(frame_ms, 0.15f), velocityIterations, positionIterations);
 	}
 	delete_br_object_manager(obj_manager);

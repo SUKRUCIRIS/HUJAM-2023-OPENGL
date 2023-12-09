@@ -8,12 +8,12 @@ GLfloat quad_vertices[] = {
 };
 
 GLuint quad_indices[] = {
-	2,
+	0,
 	1,
-	0,
-	0,
-	3,
 	2,
+	2,
+	3,
+	0,
 };
 
 GLfloat *get_quad_vertices(float x, float y, float w, float h)
