@@ -14,7 +14,7 @@ public:
 	b2ParticleSystem *particle_system = 0;
 	b2World *world = 0;
 	// particle system will be created
-	fluid(float startx, float starty, int32 width, int32 height, b2ParticleFlag particle_flag, float particle_width, float density,
+	fluid(float startx, float starty, int32 width, int32 height, float z, b2ParticleFlag particle_flag, float particle_width, float density,
 		  float gravityScale, br_object_manager *obj_manager, float texture_index, b2World *world)
 	{
 		this->particle_flag = particle_flag;
@@ -44,7 +44,7 @@ public:
 		br_object *tmp = 0;
 		for (int i = 0; i < particleCount; ++i)
 		{
-			tmp = create_br_object(obj_manager, get_quad_vertices(particlePositions[i].x - particle_width / 2, particlePositions[i].y - particle_width / 2, particle_width, particle_width, 0), 4, get_quad_indices(), 6, texture_index);
+			tmp = create_br_object(obj_manager, get_quad_vertices(particlePositions[i].x - particle_width / 2, particlePositions[i].y - particle_width / 2, particle_width, particle_width, z), 4, get_quad_indices(), 6, texture_index);
 			pushback_DA(particle_objects, &tmp);
 		}
 	}

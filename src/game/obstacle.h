@@ -15,6 +15,25 @@ public:
 	float duration_ms = 0;
 	float start_ms = 0;
 	float current_ms = 0;
+	obstacle(b2Vec2 *points, int32 count, b2World *world)
+	{
+		float x = 0;
+		float y = 0;
+		for (int i = 0; i < count; i++)
+		{
+			x += points[i].x;
+			y += points[i].y;
+		}
+		x /= count;
+		y /= count;
+		this->world = world;
+		b2BodyDef groundBodyDef;
+		groundBodyDef.position.Set(x, y);
+		groundBody = world->CreateBody(&groundBodyDef);
+		b2PolygonShape groundBox;
+		groundBox.Set(points, count);
+		groundBody->CreateFixture(&groundBox, 0.0f);
+	}
 	obstacle(float x, float y, float w, float h, float z, b2World *world, br_object_manager *obj_manager, float texture_index)
 	{
 		this->world = world;
@@ -48,6 +67,26 @@ public:
 			translate[0] = -translate[0];
 			translate[1] = -translate[1];
 			translate_br_object(obj, translate, 0);
+		}
+	}
+	void setposition(float x, float y)
+	{
+		b2Vec2 oldt = groundBody->GetTransform().p;
+		groundBody->SetTransform(b2Vec2(x, y), groundBody->GetTransform().q.GetAngle());
+		if (obj)
+		{
+			vec3 translation = {x - oldt.x, y - oldt.y, 0};
+			translate_br_object(obj, translation, 0);
+		}
+	}
+	void translate(float x, float y)
+	{
+		b2Vec2 oldt = groundBody->GetTransform().p;
+		groundBody->SetTransform(b2Vec2(x + oldt.x, y + oldt.y), groundBody->GetTransform().q.GetAngle());
+		if (obj)
+		{
+			vec3 translation = {x, y, 0};
+			translate_br_object(obj, translation, 0);
 		}
 	}
 	void rotate_timed(float desired_angle, float ms)

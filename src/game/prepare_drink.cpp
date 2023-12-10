@@ -18,12 +18,16 @@ void prepare_drink_scene(GLFWwindow *window)
 	camera *cam = create_camera(1920, 1080, cam_position, 60, -100, 100, 1, 100, 0, cam_position);
 
 	// create textures
-
 	br_texture *tex_tmp = create_br_texture(text_manager, "./data/textures/fluids/blue.png", GL_TEXTURE_2D, GL_UNSIGNED_BYTE, GL_NEAREST, GL_NEAREST, 0);
-	tex_tmp = create_br_texture(text_manager, "./data/textures/brick.jpg", GL_TEXTURE_2D, GL_UNSIGNED_BYTE, GL_NEAREST, GL_NEAREST, 1);
+	tex_tmp = create_br_texture(text_manager, "./data/textures/scene/bardak.png", GL_TEXTURE_2D, GL_UNSIGNED_BYTE, GL_NEAREST, GL_NEAREST, 1);
+	tex_tmp = create_br_texture(text_manager, "./data/textures/scene/bottle.png", GL_TEXTURE_2D, GL_UNSIGNED_BYTE, GL_NEAREST, GL_NEAREST, 2);
+	tex_tmp = create_br_texture(text_manager, "./data/textures/scene/prepare_drink_bg.png", GL_TEXTURE_2D, GL_UNSIGNED_BYTE, GL_NEAREST, GL_NEAREST, 3);
+
+	// background
+	br_object *obj_bg = create_br_object(obj_manager, get_quad_vertices(0, 0, 1920, 1080, -50), 4, get_quad_indices(), 6, 3);
+	br_object *obj_glass = create_br_object(obj_manager, get_quad_vertices(0, 0, 1920, 1080, 1), 4, get_quad_indices(), 6, 1);
 
 	// create glass physic
-
 	obstacle *obstacle1 = new obstacle(300, 850, 400, 100, 1, &world, obj_manager, 1);
 
 	obstacle *obstacle2 = new obstacle(100, 500, 200, 450, 1, &world, obj_manager, 1);
@@ -40,8 +44,7 @@ void prepare_drink_scene(GLFWwindow *window)
 	obstacle *obstacle7 = new obstacle(0, -10, 1920, 10, &world);
 
 	// create fluid physic
-
-	fluid *fluid1 = new fluid(350, 100, 100, 200, b2_waterParticle, 5, 1, 1, obj_manager, 0, &world);
+	fluid *fluid1 = new fluid(350, 100, 100, 200, 0, b2_waterParticle, 5, 1, 1, obj_manager, 0, &world);
 
 	clock_t timer = 0;
 	prepare_render_br_object_manager(obj_manager);
