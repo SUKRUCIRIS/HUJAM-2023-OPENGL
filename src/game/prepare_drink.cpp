@@ -30,12 +30,22 @@ void prepare_drink_scene(GLFWwindow *window)
 
 	obstacle *obstacle3 = new obstacle(700, 500, 200, 450, 1, &world, obj_manager, 1);
 
+	// create scene borders
+	obstacle *obstacle4 = new obstacle(-10, 0, 10, 1080, &world);
+
+	obstacle *obstacle5 = new obstacle(0, 1080, 1920, 10, &world);
+
+	obstacle *obstacle6 = new obstacle(1920, 0, 10, 1080, &world);
+
+	obstacle *obstacle7 = new obstacle(0, -10, 1920, 10, &world);
+
 	// create fluid physic
 
-	fluid *fluid1 = new fluid(350, 100, 100, 100, b2_waterParticle, 5, 1, 1, obj_manager, 0, &world);
+	fluid *fluid1 = new fluid(350, 100, 100, 200, b2_waterParticle, 5, 1, 1, obj_manager, 0, &world);
 
 	clock_t timer = 0;
 	prepare_render_br_object_manager(obj_manager);
+	obstacle3->rotate_timed(90, 10000);
 	while (1)
 	{
 		timer = clock();
@@ -53,6 +63,13 @@ void prepare_drink_scene(GLFWwindow *window)
 		}
 
 		fluid1->update();
+		obstacle1->update();
+		obstacle2->update();
+		obstacle3->update();
+		obstacle4->update();
+		obstacle5->update();
+		obstacle6->update();
+		obstacle7->update();
 
 		world.Step(0.16f, velocityIterations, positionIterations, positionIterations);
 		while ((clock() - timer) / (CLOCKS_PER_SEC / 1000) < 16)
@@ -61,6 +78,10 @@ void prepare_drink_scene(GLFWwindow *window)
 	delete obstacle1;
 	delete obstacle2;
 	delete obstacle3;
+	delete obstacle4;
+	delete obstacle5;
+	delete obstacle6;
+	delete obstacle7;
 	delete fluid1;
 	delete_br_object_manager(obj_manager);
 	delete_br_texture_manager(text_manager);
