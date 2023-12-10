@@ -11,28 +11,42 @@ public:
 	b2World *world = 0;
 	br_object *obj = 0;
 	bool rotate_over_time = false;
+	float start_angle = 0;
 	float target_angle = 0;
-	float duration_ms = 0;
-	float start_ms = 0;
+	float speed_ms = 0;
 	float current_ms = 0;
-	obstacle(b2Vec2 *points, int32 count, b2World *world)
+	float current_ms2 = 0;
+	b2Vec2 overtimecenter;
+	bool kinematic = false;
+	obstacle(b2Vec2 *points, int32 count, b2World *world, bool kinematic)
 	{
-		float x = 0;
-		float y = 0;
+		this->kinematic = kinematic;
 		for (int i = 0; i < count; i++)
 		{
-			x += points[i].x;
-			y += points[i].y;
+			points[i].x -= 121;
+			points[i].y -= 379;
 		}
-		x /= count;
-		y /= count;
-		this->world = world;
-		b2BodyDef groundBodyDef;
-		groundBodyDef.position.Set(x, y);
-		groundBody = world->CreateBody(&groundBodyDef);
-		b2PolygonShape groundBox;
-		groundBox.Set(points, count);
-		groundBody->CreateFixture(&groundBox, 0.0f);
+		if (kinematic)
+		{
+			this->world = world;
+			b2BodyDef groundBodyDef;
+			groundBodyDef.position.Set(121, 379);
+			groundBodyDef.type = b2_kinematicBody;
+			groundBody = world->CreateBody(&groundBodyDef);
+			b2PolygonShape groundBox;
+			groundBox.Set(points, count);
+			groundBody->CreateFixture(&groundBox, -1);
+		}
+		else
+		{
+			this->world = world;
+			b2BodyDef groundBodyDef;
+			groundBodyDef.position.Set(121, 379);
+			groundBody = world->CreateBody(&groundBodyDef);
+			b2PolygonShape groundBox;
+			groundBox.Set(points, count);
+			groundBody->CreateFixture(&groundBox, 0);
+		}
 	}
 	obstacle(float x, float y, float w, float h, float z, b2World *world, br_object_manager *obj_manager, float texture_index)
 	{
@@ -55,9 +69,10 @@ public:
 		groundBox.SetAsBox(w / 2, h / 2);
 		groundBody->CreateFixture(&groundBox, 0.0f);
 	}
-	void rotate(float desired_angle)
+	void rotate(float desired_angle, b2Vec2 center)
 	{
-		groundBody->SetTransform(groundBody->GetTransform().p, groundBody->GetTransform().q.GetAngle() + glm_rad(desired_angle));
+		b2Vec2 oldt = groundBody->GetTransform().p;
+		groundBody->SetTransform(center, groundBody->GetTransform().q.GetAngle() + glm_rad(desired_angle));
 		if (obj)
 		{
 			vec3 axis = {0, 0, 1};
@@ -89,15 +104,17 @@ public:
 			translate_br_object(obj, translation, 0);
 		}
 	}
-	void rotate_timed(float desired_angle, float ms)
+	void rotate_timed(float desired_angle, float deg_ms, b2Vec2 center)
 	{
 		if (glm_rad(desired_angle) != groundBody->GetTransform().q.GetAngle())
 		{
 			this->rotate_over_time = true;
 			this->target_angle = desired_angle;
-			this->start_ms = clock() / (CLOCKS_PER_SEC / 1000.0f);
-			this->duration_ms = ms;
-			this->current_ms = start_ms;
+			this->speed_ms = deg_ms;
+			this->start_angle = glm_deg(groundBody->GetTransform().q.GetAngle());
+			this->current_ms = clock() / (CLOCKS_PER_SEC / 1000.0f);
+			this->current_ms2 = current_ms;
+			this->overtimecenter = center;
 		}
 	}
 	void update()
@@ -105,16 +122,30 @@ public:
 		if (this->rotate_over_time)
 		{
 			current_ms = clock() / (CLOCKS_PER_SEC / 1000.0f);
-			this->rotate(-glm_deg(groundBody->GetTransform().q.GetAngle()));
-			this->rotate(this->target_angle * (__min(current_ms - start_ms, duration_ms) / duration_ms));
-			if (current_ms - start_ms >= duration_ms)
+			float value = speed_ms * (current_ms - current_ms2) * ((target_angle - start_angle) / fabsf((target_angle - start_angle)));
+			if ((start_angle > target_angle && glm_deg(groundBody->GetTransform().q.GetAngle()) + value < target_angle) ||
+				(start_angle < target_angle && glm_deg(groundBody->GetTransform().q.GetAngle()) + value > target_angle))
+			{
+				value = target_angle - glm_deg(groundBody->GetTransform().q.GetAngle());
+			}
+			this->rotate(value, this->overtimecenter);
+			if (glm_deg(groundBody->GetTransform().q.GetAngle()) == target_angle)
 			{
 				this->rotate_over_time = false;
 			}
+			current_ms2 = current_ms;
 		}
 	}
 	~obstacle()
 	{
 		world->DestroyBody(groundBody);
+	}
+	void SetLinearVelocity(b2Vec2 x)
+	{
+		groundBody->SetLinearVelocity(x);
+	}
+	void SetAngularVelocity(float x)
+	{
+		groundBody->SetAngularVelocity(x);
 	}
 };

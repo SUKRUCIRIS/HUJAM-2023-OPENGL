@@ -9,16 +9,17 @@
 class bottle
 {
 public:
-	std::vector<obstacle> obstacles;
+	std::vector<obstacle *> obstacles;
 	fluid *fluid_class = 0;
 	b2Vec2 pos = {0, 0};
 	float angle = 0;
 	br_object *obj = 0;
 	bool rotate_over_time = false;
+	float start_angle = 0;
 	float target_angle = 0;
-	float duration_ms = 0;
-	float start_ms = 0;
+	float speed_ms = 0;
 	float current_ms = 0;
+	float current_ms2 = 0;
 	bottle(fluid *fl, float x, float y, float w, float h, float z, br_object_manager *obj_manager, float texture_index)
 	{
 		this->fluid_class = fl;
@@ -28,10 +29,15 @@ public:
 	}
 	~bottle()
 	{
+		for (auto &i : obstacles)
+		{
+			delete i;
+		}
+		obstacles.clear();
 	}
-	void addobstacle(obstacle x)
+	void addobstacle(b2Vec2 *points, int32 count, b2World *world)
 	{
-		obstacles.push_back(x);
+		obstacles.push_back(new obstacle(points, count, world, true));
 	}
 	void translate(float x, float y)
 	{
@@ -39,7 +45,7 @@ public:
 		pos.y += y;
 		for (auto &i : obstacles)
 		{
-			i.translate(x, y);
+			i->translate(x, y);
 		}
 		if (obj)
 		{
@@ -49,10 +55,6 @@ public:
 	}
 	void setposition(float x, float y)
 	{
-		for (auto &i : obstacles)
-		{
-			i.translate(x - pos.x, y - pos.y);
-		}
 		if (obj)
 		{
 			vec3 translation = {x - pos.x, y - pos.y, 0};
@@ -64,10 +66,6 @@ public:
 	void rotate(float desired_angle)
 	{
 		angle += desired_angle;
-		for (auto &i : obstacles)
-		{
-			i.rotate(desired_angle);
-		}
 		if (obj)
 		{
 			vec3 axis = {0, 0, 1};
@@ -79,36 +77,64 @@ public:
 			translate_br_object(obj, translate, 0);
 		}
 	}
-	void rotate_timed(float desired_angle, float ms)
+	void rotate_timed(float desired_angle, float deg_ms)
 	{
-		for (auto &i : obstacles)
+		if (!(this->rotate_over_time && desired_angle == target_angle))
 		{
-			i.rotate_timed(desired_angle, ms);
-		}
-		if (desired_angle != angle)
-		{
-			this->rotate_over_time = true;
-			this->target_angle = desired_angle;
-			this->start_ms = clock() / (CLOCKS_PER_SEC / 1000.0f);
-			this->duration_ms = ms;
-			this->current_ms = start_ms;
+			for (auto &i : obstacles)
+			{
+				i->rotate_timed(desired_angle, deg_ms, pos);
+			}
+			if (desired_angle != angle)
+			{
+				this->rotate_over_time = true;
+				this->target_angle = desired_angle;
+				this->speed_ms = deg_ms;
+				this->start_angle = angle;
+				this->current_ms = clock() / (CLOCKS_PER_SEC / 1000.0f);
+				this->current_ms2 = current_ms;
+			}
 		}
 	}
 	void update()
 	{
 		for (auto &i : obstacles)
 		{
-			i.update();
+			i->update();
 		}
 		if (this->rotate_over_time)
 		{
 			current_ms = clock() / (CLOCKS_PER_SEC / 1000.0f);
-			this->rotate(-angle);
-			this->rotate(this->target_angle * (__min(current_ms - start_ms, duration_ms) / duration_ms));
-			if (current_ms - start_ms >= duration_ms)
+			float value = speed_ms * (current_ms - current_ms2) * ((target_angle - start_angle) / fabsf((target_angle - start_angle)));
+			if ((start_angle > target_angle && angle + value < target_angle) ||
+				(start_angle < target_angle && angle + value > target_angle))
+			{
+				value = target_angle - angle;
+			}
+			this->rotate(value);
+			if (angle == target_angle)
 			{
 				this->rotate_over_time = false;
 			}
+			current_ms2 = current_ms;
+		}
+		b2Transform x = obstacles[0]->groundBody->GetTransform();
+		this->rotate(-angle);
+		this->rotate(glm_deg(x.q.GetAngle()));
+		this->setposition(x.p.x, x.p.y);
+	}
+	void SetLinearVelocity(b2Vec2 x)
+	{
+		for (auto &i : obstacles)
+		{
+			i->SetLinearVelocity(x);
+		}
+	}
+	void SetAngularVelocity(float x)
+	{
+		for (auto &i : obstacles)
+		{
+			i->SetAngularVelocity(x);
 		}
 	}
 };
