@@ -6,7 +6,6 @@
 class fluid
 {
 public:
-	b2ParticleFlag particle_flag = b2_waterParticle;
 	float particle_width = 5;
 	float density = 1.0f;
 	float gravityScale = 1.0f;
@@ -14,10 +13,9 @@ public:
 	b2ParticleSystem *particle_system = 0;
 	b2World *world = 0;
 	// particle system will be created
-	fluid(float startx, float starty, int32 width, int32 height, float z, b2ParticleFlag particle_flag, float particle_width, float density,
+	fluid(float startx, float starty, int32 width, int32 height, float z, float particle_width, float density,
 		  float gravityScale, br_object_manager *obj_manager, float texture_index, b2World *world)
 	{
-		this->particle_flag = particle_flag;
 		this->particle_width = particle_width;
 		this->density = density;
 		this->gravityScale = gravityScale;
@@ -30,12 +28,12 @@ public:
 		this->particle_system = world->CreateParticleSystem(&particleSystemDef);
 
 		b2ParticleDef pd;
-		pd.flags = this->particle_flag;
+		pd.flags = b2_waterParticle;
 		for (int i = 0; i < width; i++)
 		{
 			for (int i2 = 0; i2 < height; i2++)
 			{
-				pd.position.Set((startx + (this->particle_width) * i), (starty + (this->particle_width) * i2));
+				pd.position.Set((startx + (this->particle_width / 2) * i), (starty + (this->particle_width / 2) * i2));
 				this->particle_system->CreateParticle(pd);
 			}
 		}
@@ -70,5 +68,21 @@ public:
 	{
 		world->DestroyParticleSystem(this->particle_system);
 		delete_DA(particle_objects);
+	}
+	int get_number_aabb(b2AABB x)
+	{
+		int res = 0;
+		int32 particleCount = particle_system->GetParticleCount();
+		for (int i = 0; i < particleCount; i++)
+		{
+			float posx = particle_system->GetPositionBuffer()[i].x - particle_width / 2;
+			float posy = particle_system->GetPositionBuffer()[i].y - particle_width / 2;
+			if (posx > x.lowerBound.x - particle_width / 2 && posx < x.upperBound.x + particle_width / 2 &&
+				posy > x.lowerBound.y - particle_width / 2 && posy < x.upperBound.y + particle_width / 2)
+			{
+				res++;
+			}
+		}
+		return res;
 	}
 };

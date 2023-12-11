@@ -118,6 +118,7 @@ public:
 			}
 			current_ms2 = current_ms;
 		}
+		angle = fmodf(angle, 360);
 		b2Transform x = obstacles[0]->groundBody->GetTransform();
 		this->rotate(-angle);
 		this->rotate(glm_deg(x.q.GetAngle()));
@@ -136,5 +137,40 @@ public:
 		{
 			i->SetAngularVelocity(x);
 		}
+	}
+	b2Vec2 getmaxy()
+	{
+		b2Vec2 res;
+		GLfloat *vertices = (GLfloat *)get_data_DA(obj->manager->vertices);
+		float x = __max(vertices[obj->vertex_start * 9 + 1], __max(vertices[obj->vertex_start * 9 + 10],
+																   __max(vertices[obj->vertex_start * 9 + 19], vertices[obj->vertex_start * 9 + 28])));
+		if (x == vertices[obj->vertex_start * 9 + 1])
+		{
+			return {vertices[obj->vertex_start * 9], vertices[obj->vertex_start * 9 + 1]};
+		}
+		else if (x == vertices[obj->vertex_start * 9 + 10])
+		{
+			return {vertices[obj->vertex_start * 9 + 9], vertices[obj->vertex_start * 9 + 10]};
+		}
+		else if (x == vertices[obj->vertex_start * 9 + 19])
+		{
+			return {vertices[obj->vertex_start * 9 + 18], vertices[obj->vertex_start * 9 + 19]};
+		}
+		else
+		{
+			return {vertices[obj->vertex_start * 9 + 27], vertices[obj->vertex_start * 9 + 28]};
+		}
+	}
+	float getmaxx()
+	{
+		GLfloat *vertices = (GLfloat *)get_data_DA(obj->manager->vertices);
+		return __max(vertices[obj->vertex_start * 9 + 0], __max(vertices[obj->vertex_start * 9 + 9],
+																__max(vertices[obj->vertex_start * 9 + 18], vertices[obj->vertex_start * 9 + 27])));
+	}
+	float getminx()
+	{
+		GLfloat *vertices = (GLfloat *)get_data_DA(obj->manager->vertices);
+		return __min(vertices[obj->vertex_start * 9 + 0], __min(vertices[obj->vertex_start * 9 + 9],
+																__min(vertices[obj->vertex_start * 9 + 18], vertices[obj->vertex_start * 9 + 27])));
 	}
 };

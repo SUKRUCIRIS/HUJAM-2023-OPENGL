@@ -35,7 +35,7 @@ public:
 			groundBody = world->CreateBody(&groundBodyDef);
 			b2PolygonShape groundBox;
 			groundBox.Set(points, count);
-			groundBody->CreateFixture(&groundBox, -1);
+			groundBody->CreateFixture(&groundBox, 0);
 		}
 		else
 		{
@@ -45,7 +45,10 @@ public:
 			groundBody = world->CreateBody(&groundBodyDef);
 			b2PolygonShape groundBox;
 			groundBox.Set(points, count);
-			groundBody->CreateFixture(&groundBox, 0);
+			b2FixtureDef fix;
+			fix.shape = &groundBox;
+			fix.density = 0;
+			groundBody->CreateFixture(&fix);
 		}
 	}
 	obstacle(float x, float y, float w, float h, float z, b2World *world, br_object_manager *obj_manager, float texture_index)
@@ -147,5 +150,19 @@ public:
 	void SetAngularVelocity(float x)
 	{
 		groundBody->SetAngularVelocity(x);
+	}
+	b2Vec2 getlocalpoint(b2Vec2 x)
+	{
+		return groundBody->GetLocalPoint(x);
+	}
+	void create_joint(obstacle *obs, b2Vec2 selfanchor, b2Vec2 otheranchor)
+	{
+		b2RevoluteJointDef jointDef;
+		jointDef.bodyA = this->groundBody;
+		jointDef.bodyB = obs->groundBody;
+		jointDef.collideConnected = false;
+		jointDef.localAnchorA = selfanchor;
+		jointDef.localAnchorB = otheranchor;
+		b2RevoluteJoint *revoluteJoint = (b2RevoluteJoint *)world->CreateJoint(&jointDef);
 	}
 };
