@@ -1,5 +1,6 @@
 #include "./core/core.h"
-#include "./game/prepare_drink.h"
+#include "./game/intro.h"
+#include "./game/mainmenu.h"
 
 int main(void)
 {
@@ -11,7 +12,8 @@ int main(void)
 
 	init_programs();
 
-	prepare_drink_scene(window);
+	intro(window);
+	mainmenu(window);
 
 	destroy_programs();
 	delete_window(window);

@@ -25,6 +25,7 @@ void prepare_drink_scene(GLFWwindow *window)
 	tex_tmp = create_br_texture(text_manager, "./data/textures/scene/bottle.png", GL_TEXTURE_2D, GL_UNSIGNED_BYTE, GL_LINEAR, GL_LINEAR, 2);
 	tex_tmp = create_br_texture(text_manager, "./data/textures/scene/pd_bg.png", GL_TEXTURE_2D, GL_UNSIGNED_BYTE, GL_LINEAR, GL_LINEAR, 3);
 	tex_tmp = create_br_texture(text_manager, "./data/textures/scene/stripe.png", GL_TEXTURE_2D, GL_UNSIGNED_BYTE, GL_LINEAR, GL_LINEAR, 4);
+	tex_tmp = create_br_texture(text_manager, "./data/textures/fluids/red.png", GL_TEXTURE_2D, GL_UNSIGNED_BYTE, GL_LINEAR, GL_LINEAR, 5);
 
 	// background
 	br_object *obj_bg = create_br_object(obj_manager, get_quad_vertices(0, 0, 1920, 1080, -50), 4, get_quad_indices(), 6, 3);
@@ -198,20 +199,21 @@ void prepare_drink_scene(GLFWwindow *window)
 
 	// aabb
 	b2AABB ground;
-	ground.lowerBound.Set(-1000, 960);
+	ground.lowerBound.Set(-1000, 958);
 	ground.upperBound.Set(3000, 1060);
 	b2AABB glass;
 	glass.lowerBound.Set(765, 653);
 	glass.upperBound.Set(1140, 807);
 
-	int inglass;
-	int wasted;
-	int maxglass = 3000;
-	int maxwasted = 3000;
+	int inglass = 0;
+	int wasted = 0;
+	int maxglass = 1000;
+	int maxwasted = 1000;
 
-	bar *glassbar = new bar(60, 500, 50, 51, 300, 0, (float)maxglass, obj_manager, 0);
-	bar *wastebar = new bar(1810, 500, 50, 51, 300, 0, (float)maxwasted, obj_manager, 0);
+	bar *glassbar = new bar(60, 500, 50, 51, 300, 0, (float)maxglass, obj_manager, 0, 5);
+	bar *wastebar = new bar(1810, 500, 50, 51, 300, 0, (float)maxwasted, obj_manager, 0, 5);
 	prepare_render_br_object_manager(obj_manager);
+	char x = 0;
 	while (1)
 	{
 		timer = clock();
@@ -223,7 +225,7 @@ void prepare_drink_scene(GLFWwindow *window)
 		use_br_object_manager(obj_manager);
 		glfwSwapBuffers(window);
 
-		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS || inglass >= 900)
 		{
 			break;
 		}
